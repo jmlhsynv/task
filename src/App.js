@@ -1,24 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import Header from "./components/Header";
+import { Switch, Route, Redirect } from "react-router-dom";
+import { routes } from "./routes/routes";
+
+import "./assets/css/style.css";
+import { useSelector } from "react-redux";
 
 function App() {
+  const { user } = useSelector((state) => state.auth);
+  const { status } = useSelector((state) => state.auth);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header />
+      <Switch>
+        {routes.map((route, key) => (
+          <Route
+            key={key}
+            exact={route.exact}
+            path={route.path}
+            render={() => {
+              if (route.auth && !user) {
+                return <Redirect to="/login" />;
+              }
+              if (route.admin && !status) {
+                return <Redirect to="/" />;
+              }
+              return <route.component />;
+            }}
+          />
+        ))}
+      </Switch>
+    </>
   );
 }
 
